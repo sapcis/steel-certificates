@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "ab5e1ef3-00c7-4f5c-87c8-c9fcd031f1a1",
+		"name": "Steel Certificates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "getToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9df73695-1a0f-4d58-9acf-fa9c80f85384",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"// The code below works for Postman Native app. If you are using Chrome app, use the next line",
+							"pm.environment.set(\"token\", jsonData.access_token); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{clientId}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{clientSecret}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{oAuthURL}}/oauth/token?grant_type=client_credentials",
+					"host": [
+						"{{oAuthURL}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createCertificateByAttributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5de0c8f6-b80d-40fd-a315-e12bbc18963c",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"// The code below works for Postman Native app. If you are using Chrome app, use the next line",
+							"pm.environment.set(\"certificateId\", jsonData.Payload.ID); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"function\": \"createByAttributes\",\n    \"transient\": {\n        \"certnumber\": \"{{certNumber}}\",\n        \"certdate\": {{certDate}},\n        \"manufacturercode\": \"{{manufacturerCode}}\",\n        \"certcheckcode\": \"{{certCheckCode}}\",\n        \"productname\": \"новая труба 15122020\",\n        \"status\": \"{{certStatus}}\",\n        \"certurl\": \"www.new.ru\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/invoke",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"invoke"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createCertificateByID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "98a66465-d8f6-4c9e-a276-84a2e80a2cf9",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"// The code below works for Postman Native app. If you are using Chrome app, use the next line",
+							"pm.environment.set(\"certificateId\", jsonData.Payload.ID); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"function\": \"createByID\",\n    \"transient\": {\n        \"id\": \"5b9003123f2febdaee94b490ed443b9db9344a7524809b39823a0a925c208403\",\n        \"checksum\": \"3f10878ea6cc5af3deeed3c9daaff1909fd3d5f4cfd40b1fe0504e86dd1e8bc1\",\n        \"productname\": \"труба 589x111\",\n        \"status\": \"{{certStatus}}\",\n        \"certurl\": \"www.ru\"\n    }   \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/invoke",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"invoke"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getCertificateByID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/certificate/{{certificateId}}",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"certificate",
+						"{{certificateId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getCertificateByIDAttributes",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/certificate/find/{{certNumber}}/{{certDate}}/{{companyCode}}/{{manufacturerCode}}/{{certCheckCode}}/{{certStatus}}",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"certificate",
+						"find",
+						"{{certNumber}}",
+						"{{certDate}}",
+						"{{companyCode}}",
+						"{{manufacturerCode}}",
+						"{{certCheckCode}}",
+						"{{certStatus}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findCertificatesByChecksumAttributes",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/certificates/find/{{certNumber}}/{{certDate}}/{{companyCode}}/{{manufacturerCode}}/{{certCheckCode}}",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"certificates",
+						"find",
+						"{{certNumber}}",
+						"{{certDate}}",
+						"{{companyCode}}",
+						"{{manufacturerCode}}",
+						"{{certCheckCode}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findCertificatesByChecksum",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://hyperledger-fabric.cfapps.eu10.hana.ondemand.com/api/v1/chaincodes/{{chaincodeId}}/{{chaincodeVersion}}/certificates/{{checkSum}}",
+					"protocol": "https",
+					"host": [
+						"hyperledger-fabric",
+						"cfapps",
+						"eu10",
+						"hana",
+						"ondemand",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"chaincodes",
+						"{{chaincodeId}}",
+						"{{chaincodeVersion}}",
+						"certificates",
+						"{{checkSum}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
