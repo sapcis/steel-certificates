@@ -1,0 +1,38 @@
+<mvc:View controllerName="botui.BotUI5.controller.Main" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true" xmlns="sap.m">
+	<App id="idAppControl">
+		<!--<pages>
+			<Page title="{i18n>title}">
+				<content></content>
+			</Page>
+		</pages>-->
+		<!--<Page title="Чатбот" enableScrolling="true" class="alarm11">-->
+		<Page  showHeader="false" enableScrolling="true" class="alarm11">
+			<FlexBox justifyContent="Center" class="sapUiSmallMarginTop">
+				<Text id="timeStamp" text="fff"></Text>
+			</FlexBox>
+			<ScrollContainer id="scrollCont">
+				<List  id="oList" showSeparators="None" showNoData="false" backgroundDesign="Transparent">
+				</List>
+			</ScrollContainer>
+			<footer>
+			
+				<Toolbar id="tlb" design="Solid">
+						
+					<Input class="sapMFeedIn height3Rem" id="fi" type="Text" fieldWidth = "90%"  placeholder="Type your message" showSuggestion="true" suggest="handleSuggest">
+
+					</Input>
+					
+					<Button type="Emphasized" icon="sap-icon://paper-plane" press="onSend" class="sendBtnCss"></Button>
+					
+					<ToggleButton id="voiceBtn" icon="sap-icon://microphone" enabled="true" press="onVoicePressed" >
+					<layoutData>
+						<FlexItemData growFactor="1" />
+					</layoutData>
+					</ToggleButton>
+					<Button type="Emphasized" icon="sap-icon://bar-code" press="onQR" class="sendBtnCss"></Button>
+				</Toolbar>
+			</footer>
+		</Page>
+	</App>
+</mvc:View>

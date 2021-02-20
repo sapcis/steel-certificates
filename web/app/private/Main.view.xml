@@ -1,0 +1,87 @@
+<mvc:View controllerName="sap.suite.ui.commons.sample.Blockchain.Main" 
+	xmlns:l="sap.ui.layout"
+	xmlns:u="sap.ui.unified"
+	xmlns:html="http://www.w3.org/1999/xhtml" 
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true" 
+	xmlns="sap.m">
+	<App id="idAppControl">
+		<pages>
+			<Page title="Загрузка сертификатов">
+				<content>
+					<HBox height="30px" alignContent="Center" alignItems="Center" justifyContent="Center">
+						<!--<Text textAlign="Center" width="100%" id="recordExists" text="Сертификат уже был загружен в блокчейн, повторная загрузка невозможна."/>-->
+					</HBox>
+					<FlexBox alignContent="Center" alignItems="Center">
+						<VBox width="1%"></VBox>
+						<VBox width="98%">
+							<HBox>
+								<VBox>
+									<u:FileUploader id="fileUploader" buttonText="Открыть сертификат" uploadOnChange="true" mimeType="application/json" change="onFileUploaderChange"/>
+								</VBox>
+							</HBox>
+							<HBox id="tablePlaceholder" width="100%">
+								<Table id="idProductsTable"
+									inset="false"
+									items="{main>/values}">
+									<columns>
+										<Column >
+											<Text text="Technical ID" />
+										</Column>
+										<Column >
+											<Text text="Номер сертификата" />
+										</Column>
+										<Column >
+											<Text text="Дата сертификата" />
+										</Column>
+										<Column >
+											<Text text="Код компании производителя" />
+										</Column>
+										<Column >
+											<Text text="Код завода производителя" />
+										</Column>
+										<Column >
+											<Text text="Проверочный код сертификата" />
+										</Column>
+										<Column >
+											<Text text="Наименование продукции" />
+										</Column>
+										<Column >
+											<Text text="Статус" />
+										</Column>
+										<Column >
+											<Text text="Ссылка на сертификат" />
+										</Column>
+									</columns>
+									<items>
+										<ColumnListItem>
+											<cells>
+												<Text text="{main>id}" />
+												<Text text="{main>certnumber}" />
+												<Text text="{main>certdate}" />
+												<Text text="{main>companycode}" />
+												<Text text="{main>manufacturercode}" />
+												<Text text="{main>certcheckcode}" />
+												<Text text="{main>productname}" />
+												<Text text="{main>status}" />
+												<Text text="{main>certurl}" />
+											</cells>
+										</ColumnListItem>
+									</items>
+								</Table>
+							</HBox>
+							<HBox>
+								<VBox width="100%">
+									
+								</VBox>
+								<VBox>
+									<Button id="saveToBlockchain" text="Загрузить в блокчейн" press="saveCertToChain" />
+								</VBox>
+							</HBox>
+						</VBox>
+					</FlexBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

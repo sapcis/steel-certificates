@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Blockchain</title>
+	<script id="sap-ui-bootstrap"
+			src="https://sapui5.hana.ondemand.com/1.72.1/resources/sap-ui-core.js"
+			data-sap-ui-theme="sap_belize"
+			data-sap-ui-preload=""
+			data-sap-ui-resourceroots='{
+			"sap.suite.ui.commons.sample.Blockchain": "./"
+		}'
+			data-sap-ui-compatVersion="edge"
+			data-sap-ui-async="true"
+			data-sap-ui-frameOptions="allow"
+			data-sap-ui-libs="sap.m">
+	</script>
+	<style type="text/css">
+		#__data2{
+		    width: 100%;
+    		max-width: 600px;
+    	}
+	</style>
+	<script>
+		sap.ui.getCore().attachInit(function() {
+			new sap.m.Shell({
+				app: new sap.ui.core.ComponentContainer({
+					height : "100%",
+					name : "sap.suite.ui.commons.sample.Blockchain.Blockchain"
+				})
+			}).placeAt("content");
+		});
+	</script>
+</head>
+<body class="sapUiBody" id="content">
+	
+</body>
+</html>

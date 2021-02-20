@@ -1,0 +1,19 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:u="sap.ui.unified">
+	<ResponsivePopover
+		title="Загрузка сертификата"
+		class="sapUiPopupWithPadding"
+		placement="Bottom" >
+		<!--<beginButton>
+			<Button text="Закрыть" press="handleCloseButton" />
+		</beginButton>-->
+		<endButton>
+			<Button text="Загрузить" press="onUploadCert" />
+		</endButton>
+		<content>
+			<u:FileUploader id="fileUploaderCertFrom" buttonText="Загрузить печатную форму" uploadOnChange="true" change="onUploadPrintForm"/>
+		</content>
+	</ResponsivePopover>
+</core:FragmentDefinition>

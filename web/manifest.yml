@@ -1,0 +1,6 @@
+---
+applications:
+- name: hmetalchain
+  host: hmetalchain
+  path: app
+  memory: 128M

@@ -5,6 +5,5 @@
 !yarn.lock
 steel-certificates.solution.go
 __MACOSX
-web/
 test-certificate.json
 test

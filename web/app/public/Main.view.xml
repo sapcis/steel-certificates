@@ -1,0 +1,98 @@
+<mvc:View
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	controllerName="sap.suite.ui.commons.sample.Blockchain.Main">
+	<Panel>
+		<!--<HBox alignItems="Center" justifyContent="Center">
+			<Input id="certnumber" type="Text" placeholder="Введите номер сертификата"/>
+			<Button class="sapUiTinyMarginEnd" text="Поиск" press="onPress"/>
+			<Button type="Emphasized" icon="sap-icon://bar-code" press="onQR" class="sendBtnCss"></Button>
+		</HBox>-->
+		<Input id="certnumber" type="Text" placeholder="Введите номер сертификата"/>
+		<DatePicker id="certdate" placeholder="Введите дату сертификата" valueFormat="yyyyMMdd" displayFormat="dd.MM.yyyy"/>
+		<VBox>
+			<Label text="Выберите компанию" labelFor="companycode" class="sapUiTinyMarginEnd sapUiTinyMarginTop"/>
+			<Select id="companycode" items="{path:'company>/'}" change="companyChange" width="100%">
+				<core:Item key="{company>key}" text="{company>text}" />
+			</Select>
+			<Label text="Выберите завод производитель" labelFor="manufacturercode" class="sapUiTinyMarginEnd sapUiTinyMarginTop"/>
+			<Select id="manufacturercode" items="{path:'company>/0/items'}" width="100%">
+				<core:Item key="{company>key}" text="{company>text}" />
+			</Select>
+		</VBox>
+		<Input id="certcheckcode" type="Text" placeholder="Введите проверочный код сертификата"/>
+		<core:HTML content='&lt;div id=&quot;gcaptcha&quot; class=&quot;g-recaptcha&quot; data-sitekey=&quot;6LcESMsUAAAAAPquC2bkwlwIBzkcTnLXyjzXTktj&quot;&gt;&lt;/div&gt;&lt;script src=&quot;https://www.google.com/recaptcha/api.js?hl=ru&amp;render=6LfVRMsUAAAAAGlD3uUU9tfjIZnsePx9qh8jUUma&quot;&gt;&lt;/script&gt;'></core:HTML>
+		<Button class="sapUiTinyMarginEnd" text="Поиск" press="onPress"/>
+		<HBox alignItems="Center" justifyContent="Center">
+			<Table id="idProductsTable"
+				inset="false"
+				items="{main>/values}">
+				<columns>
+					<!--<Column >
+						<Text text="Номер сертификата" />
+					</Column>
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Дата сертификата" />
+					</Column>-->
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Код компании производителя" />
+					</Column>
+					<!--<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Код завода производителя" />
+					</Column>
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Проверочный код сертификата" />
+					</Column>-->
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Наименование продукции" />
+					</Column>
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Статус" />
+					</Column>
+					<!--<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Контрольное число (статус) Proof-of-work*" />
+					</Column>-->
+					<Column 
+						minScreenWidth="Desktop"
+						demandPopin="true">
+						<Text text="Ссылка на сертификат" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<!--<Text text="{main>certnumber}" />
+							<Text text="{main>certdate}" />-->
+							<Text text="{main>companycode}" />
+							<!--<Text text="{main>manufacturercode}" />
+							<Text text="{main>certcheckcode}" />-->
+							<Text text="{main>productname}" />
+							<Text text="{main>status}" />
+							<!--<Text text="{main>checkcsumpow}" />-->
+							<Link
+								text="Скачать"
+								target="_blank"
+								href="{main>certurl}" />
+							<!--<Text text="{main>certurl}" />-->
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</HBox>
+	</Panel>
+</mvc:View>
