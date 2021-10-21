@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -71,49 +72,49 @@ func generateID(in InCertificate) string {
 	return hex.EncodeToString(ID[:])
 }
 
-func checkCertPublicAttr(certAttr ...string) (bool, string) {
+func checkCertPublicAttr(certAttr ...string) error {
 	// status check
 	matched, err := regexp.Match(`^\d{3}$`, []byte(certAttr[0]))
 	if !matched || err != nil {
-		return true, "Wrong certificate status format"
+		return errors.New("Wrong certificate status format")
 	}
 	if len(certAttr) > 1 {
 		// certurl check
 		matched, err = regexp.Match(`^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$`, []byte(certAttr[1]))
 		if !matched || err != nil {
-			return true, "Wrong certificate url format"
+			return errors.New("Wrong certificate url format")
 		}
 		// productname check
 		matched, err = regexp.Match(`.{1,120}$`, []byte(certAttr[2]))
 		if !matched || err != nil {
-			return true, "Wrong certificate product name format"
+			return errors.New("Wrong certificate product name format")
 		}
 	}
-	return false, "Ok"
+	return nil
 }
 
-func checkCertPrivateAttr(certAttr ...string) (bool, string) {
+func checkCertPrivateAttr(certAttr ...string) error {
 	// certnumber check
 	matched, err := regexp.Match(`^.{1,20}$`, []byte(certAttr[0]))
 	if !matched || err != nil {
-		return true, "Wrong certificate number format"
+		return errors.New("Wrong certificate number format")
 	}
 	// certdate check
 	matched, err = regexp.Match(`^\d{8,8}$`, []byte(certAttr[1]))
 	if !matched || err != nil {
-		return true, "Wrong certificate date format"
+		return errors.New("Wrong certificate date format")
 	}
 	// manufacturercode check
 	matched, err = regexp.Match(`^.{1,20}$`, []byte(certAttr[2]))
 	if !matched || err != nil {
-		return true, "Wrong certificate manufacturer code format"
+		return errors.New("Wrong certificate manufacturer code format")
 	}
 	// certcheckcode check
 	matched, err = regexp.Match(`^.{1,20}$`, []byte(certAttr[3]))
 	if !matched || err != nil {
-		return true, "Wrong certificate check code format"
+		return errors.New("Wrong certificate check code format")
 	}
-	return false, "Ok"
+	return nil
 }
 
 func getMspID(stub shim.ChaincodeStubInterface) (string, error) {
@@ -171,19 +172,17 @@ func (cc *SteelCertificateContract) getByID(stub shim.ChaincodeStubInterface, ar
 	if value, err := stub.GetState(id); err != nil || value == nil {
 		return Error(http.StatusNotFound, "Not Found")
 	} else {
-		type Response struct {
+		var outCert OutCertificate
+		outCert.FromJson(value)
+		resp := struct {
 			Message string         `json:message`
 			Code    uint           `json:code`
 			Payload OutCertificate `json:payload`
-		}
-		var outCert OutCertificate
-		outCert.FromJson(value)
-		resp := Response{"OK", http.StatusOK, outCert}
-		jsonResp, err1 := json.Marshal(resp)
-		if err1 != nil {
+		}{Message: "OK", Code: http.StatusOK, Payload: outCert}
+		jsonResp, err := json.Marshal(resp)
+		if err != nil {
 			return Error(http.StatusInternalServerError, "Error on marshal")
 		}
-
 		return Success(http.StatusOK, "OK", jsonResp)
 	}
 }
@@ -213,33 +212,32 @@ func (cc *SteelCertificateContract) createByID(stub shim.ChaincodeStubInterface,
 	if value, err := stub.GetState(outCert.ID); !(err == nil && value == nil) {
 		return Error(http.StatusConflict, "Certificate Exists")
 	}
-	err1, msg := checkCertPublicAttr(outCert.Status, outCert.CertURL, outCert.ProductName)
-	if err1 {
-		return Error(http.StatusInternalServerError, msg)
+
+	if err := checkCertPublicAttr(outCert.Status, outCert.CertURL, outCert.ProductName); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
 	// generate company code
-	if _, err2 := getMspID(stub); err2 != nil {
+	if _, err := getMspID(stub); err != nil {
 		return Error(http.StatusInternalServerError, "Cannot get mspid")
 	}
 	outCert.CompanyCode, _ = getMspID(stub)
 
-	jsonCert, err3 := json.Marshal(outCert)
-	if err3 != nil {
+	jsonCert, err := json.Marshal(outCert)
+	if err != nil {
 		return Error(http.StatusInternalServerError, "Error on marshal")
 	}
-	if err4 := stub.PutState(outCert.ID, jsonCert); err4 != nil {
-		return Error(http.StatusInternalServerError, err4.Error())
+	if err := stub.PutState(outCert.ID, jsonCert); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
-	type Response struct {
+	resp := struct {
 		Message string         `json:message`
 		Code    uint           `json:code`
 		Payload OutCertificate `json:payload`
-	}
-	resp := Response{"Certificate Created", http.StatusCreated, outCert}
-	jsonResp, err4 := json.Marshal(resp)
-	if err4 != nil {
+	}{Message: "Certificate Created", Code: http.StatusCreated, Payload: outCert}
+	jsonResp, err := json.Marshal(resp)
+	if err != nil {
 		return Error(http.StatusInternalServerError, "Error on marshal")
 	}
 
@@ -276,17 +274,17 @@ func (cc *SteelCertificateContract) createByAttributes(stub shim.ChaincodeStubIn
 		}
 	}
 
-	err, msg := checkCertPublicAttr(inCert.Status, inCert.CertURL, inCert.ProductName)
-	if err {
-		return Error(http.StatusInternalServerError, msg)
+	err := checkCertPublicAttr(inCert.Status, inCert.CertURL, inCert.ProductName)
+	if err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
-	err1, msg := checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode)
-	if err1 {
-		return Error(http.StatusInternalServerError, msg)
+	err = checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode)
+	if err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
 	// generate company code
-	if _, err2 := getMspID(stub); err2 != nil {
+	if _, err := getMspID(stub); err != nil {
 		return Error(http.StatusInternalServerError, "Cannot get mspid")
 	}
 	inCert.CompanyCode, _ = getMspID(stub)
@@ -303,25 +301,24 @@ func (cc *SteelCertificateContract) createByAttributes(stub shim.ChaincodeStubIn
 	outCert.Status = inCert.Status
 	outCert.CertURL = inCert.CertURL
 
-	if value, err3 := stub.GetState(outCert.ID); !(err3 == nil && value == nil) {
+	if value, err := stub.GetState(outCert.ID); !(err == nil && value == nil) {
 		return Error(http.StatusConflict, "Certificate Exists")
 	}
-	jsonCert, err4 := json.Marshal(outCert)
-	if err4 != nil {
+	jsonCert, err := json.Marshal(outCert)
+	if err != nil {
 		return Error(http.StatusInternalServerError, "Error on marshal")
 	}
-	if err5 := stub.PutState(outCert.ID, jsonCert); err5 != nil {
-		return Error(http.StatusInternalServerError, err5.Error())
+	if err := stub.PutState(outCert.ID, jsonCert); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
-	type Response struct {
+	resp := struct {
 		Message string         `json:message`
 		Code    uint           `json:code`
 		Payload OutCertificate `json:payload`
-	}
-	resp := Response{"Certificate Created", http.StatusCreated, outCert}
-	jsonResp, err6 := json.Marshal(resp)
-	if err6 != nil {
+	}{Message: "Certificate Created", Code: http.StatusCreated, Payload: outCert}
+	jsonResp, err := json.Marshal(resp)
+	if err != nil {
 		return Error(http.StatusInternalServerError, "Error on marshal")
 	}
 
@@ -339,31 +336,28 @@ func (cc *SteelCertificateContract) getByIDAttributes(stub shim.ChaincodeStubInt
 	inCert.CertCheckcode = args[4]
 	inCert.Status = args[5]
 
-	err, msg := checkCertPublicAttr(inCert.Status)
-	if err {
-		return Error(http.StatusInternalServerError, msg)
+	if err := checkCertPublicAttr(inCert.Status); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
-	err1, msg := checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode)
-	if err1 {
-		return Error(http.StatusInternalServerError, msg)
+	if err := checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
 	// generate ID
 	outCert.ID = generateID(inCert)
 
-	if value, err2 := stub.GetState(outCert.ID); err2 != nil || value == nil {
+	if value, err := stub.GetState(outCert.ID); err != nil || value == nil {
 		return Error(http.StatusNotFound, "Not Found")
 	} else {
-		type Response struct {
+		var outCert OutCertificate
+		outCert.FromJson(value)
+		resp := struct {
 			Message string         `json:message`
 			Code    uint           `json:code`
 			Payload OutCertificate `json:payload`
-		}
-		var outCert OutCertificate
-		outCert.FromJson(value)
-		resp := Response{"OK", http.StatusOK, outCert}
-		jsonResp, err3 := json.Marshal(resp)
-		if err3 != nil {
+		}{Message: "OK", Code: http.StatusOK, Payload: outCert}
+		jsonResp, err := json.Marshal(resp)
+		if err != nil {
 			return Error(http.StatusInternalServerError, "Error on marshal")
 		}
 		return Success(http.StatusOK, "OK", jsonResp)
@@ -379,9 +373,8 @@ func (cc *SteelCertificateContract) findByChecksumAttributes(stub shim.Chaincode
 	inCert.ManufacturerCode = args[3]
 	inCert.CertCheckcode = args[4]
 
-	err, msg := checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode)
-	if err {
-		return Error(http.StatusInternalServerError, msg)
+	if err := checkCertPrivateAttr(inCert.CertNumber, inCert.CertDate, inCert.ManufacturerCode, inCert.CertCheckcode); err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 
 	// generate checksums
@@ -389,15 +382,13 @@ func (cc *SteelCertificateContract) findByChecksumAttributes(stub shim.Chaincode
 
 	queryString := fmt.Sprintf(`{
 		"selector": {
-			"checkcsum": {
-				"$in": ["%s"]
-			}
+			"checkcsum": "%s"
 		}
 	}`, checkSum)
 
-	resultsIterator, err1 := stub.GetQueryResult(queryString)
-	if err1 != nil {
-		return Error(http.StatusInternalServerError, err1.Error())
+	resultsIterator, err := stub.GetQueryResult(queryString)
+	if err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 	defer resultsIterator.Close()
 
@@ -434,15 +425,13 @@ func (cc *SteelCertificateContract) findByChecksum(stub shim.ChaincodeStubInterf
 
 	queryString := fmt.Sprintf(`{
 		"selector": {
-			"checkcsum": {
-				"$in": ["%s"]
-			}
+			"checkcsum": "%s"
 		}
 	}`, checkSum)
 
-	resultsIterator, err1 := stub.GetQueryResult(queryString)
-	if err1 != nil {
-		return Error(http.StatusInternalServerError, err1.Error())
+	resultsIterator, err := stub.GetQueryResult(queryString)
+	if err != nil {
+		return Error(http.StatusInternalServerError, err.Error())
 	}
 	defer resultsIterator.Close()
 
