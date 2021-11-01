@@ -1,0 +1,6 @@
+{
+  "index": { "fields": ["checkcsum"] },
+  "ddoc": "indexCheckcsumDoc",
+  "name": "indexCheckcsum",
+  "type": "json"
+}

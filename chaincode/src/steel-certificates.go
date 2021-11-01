@@ -365,8 +365,7 @@ func (cc *SteelCertificateContract) getByIDAttributes(stub shim.ChaincodeStubInt
 }
 
 func (cc *SteelCertificateContract) findByChecksumAttributes(stub shim.ChaincodeStubInterface, args []string) peer.Response {
-	var inCert InCertificate
-
+	inCert := InCertificate{}
 	inCert.CertNumber = args[0]
 	inCert.CertDate = args[1]
 	inCert.CompanyCode = args[2]
@@ -381,10 +380,11 @@ func (cc *SteelCertificateContract) findByChecksumAttributes(stub shim.Chaincode
 	checkSum := generateChecksum(inCert)
 
 	queryString := fmt.Sprintf(`{
-		"selector": {
-			"checkcsum": "%s"
-		}
-	}`, checkSum)
+		"selector": { "checkcsum": "%s" },
+		"use_index": ["_design/indexCheckcsumDoc", "indexCheckcsum"]
+	  }`, checkSum)
+
+	// logger.Infof("queryString = %s", queryString)
 
 	resultsIterator, err := stub.GetQueryResult(queryString)
 	if err != nil {
@@ -424,10 +424,9 @@ func (cc *SteelCertificateContract) findByChecksum(stub shim.ChaincodeStubInterf
 	checkSum := args[0]
 
 	queryString := fmt.Sprintf(`{
-		"selector": {
-			"checkcsum": "%s"
-		}
-	}`, checkSum)
+		"selector": { "checkcsum": "%s" },
+		"use_index": ["_design/indexCheckcsumDoc", "indexCheckcsum"]
+	  }`, checkSum)
 
 	resultsIterator, err := stub.GetQueryResult(queryString)
 	if err != nil {
