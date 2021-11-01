@@ -1,7 +1,7 @@
 swagger: "2.0"
 
 info:
-  version: "1.17"
+  version: "1.18"
   title: "Steel Certificates"
 
 parameters:
